@@ -1,8 +1,8 @@
 
-/* FRESH FIRST - STOCK MANAGEMENT PAGE */
+/* FRESH FIRST - PREMIUM STOCK DESIGN */
 
 .stock-page {
-    background: #f4f8f5;
+    background: #f5f6fb;
     min-height: 100vh;
     padding: 30px;
 }
@@ -11,43 +11,40 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-    gap: 15px;
+    margin-bottom: 28px;
 }
 
 .stock-header h2 {
-    color: #24332b;
+    color: #252044;
+    font-size: 27px;
+    font-weight: 700;
 }
 
 .stock-header p {
-    color: #6c757d;
-    margin-top: 6px;
+    color: #88849b;
+    margin-top: 8px;
 }
 
-.stock-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.stock-form-container {
-    background: white;
-    padding: 25px;
-    border-radius: 10px;
+.stock-form-container,
+.stock-table-container {
+    background: #ffffff;
+    padding: 28px;
+    border-radius: 16px;
     margin-bottom: 25px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 5px 25px rgba(45, 35, 90, 0.07);
 }
 
-.stock-form-container h3 {
-    color: #198754;
-    margin-bottom: 20px;
+.stock-form-container h3,
+.stock-table-container h3 {
+    color: #35276c;
+    font-size: 20px;
+    margin-bottom: 24px;
 }
 
 .stock-form {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 18px;
+    gap: 22px;
 }
 
 .stock-form .form-group {
@@ -56,33 +53,61 @@
 }
 
 .stock-form label {
-    margin-bottom: 7px;
+    color: #45415b;
     font-weight: 600;
-    color: #35463b;
+    margin-bottom: 9px;
+    font-size: 14px;
 }
 
 .stock-form input,
 .stock-form select {
-    padding: 11px;
-    border: 1px solid #dce8df;
-    border-radius: 7px;
     width: 100%;
+    padding: 13px 15px;
+    border: 1px solid #e3e0ef;
+    border-radius: 9px;
+    background: #faf9fe;
+    color: #302b48;
+    outline: none;
+    font-size: 14px;
+}
+
+.stock-form input:focus,
+.stock-form select:focus {
+    border-color: #7660d8;
+    box-shadow: 0 0 0 3px rgba(118, 96, 216, 0.12);
 }
 
 .stock-form .full-width {
     grid-column: 1 / -1;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+}
+
+.stock-form button {
+    padding: 13px 24px;
+    border: none;
+    border-radius: 9px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #7660d8, #4934a1);
+    color: white;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+.btn-secondary {
+    background: #eeeaf8;
+    color: #51428b;
 }
 
 .stock-table-container {
-    background: white;
-    padding: 25px;
-    border-radius: 10px;
     overflow-x: auto;
-}
-
-.stock-table-container h3 {
-    margin-bottom: 18px;
-    color: #24332b;
 }
 
 .stock-table {
@@ -91,28 +116,34 @@
     min-width: 650px;
 }
 
-.stock-table th,
-.stock-table td {
-    padding: 13px;
+.stock-table th {
+    background: #f0edfb;
+    color: #493b83;
+    padding: 16px;
     text-align: left;
-    border-bottom: 1px solid #e8eee9;
+    font-size: 14px;
 }
 
-.stock-table th {
-    background: #e8f5ed;
-    color: #198754;
+.stock-table td {
+    padding: 15px;
+    color: #55516a;
+    border-bottom: 1px solid #eeeaf5;
 }
 
 .stock-table tr:hover {
-    background: #f8fbf9;
+    background: #faf9fe;
 }
 
-@media (max-width: 600px) {
+@media(max-width: 650px) {
     .stock-page {
-        padding: 18px;
+        padding: 15px;
     }
 
     .stock-form {
         grid-template-columns: 1fr;
+    }
+
+    .stock-form .full-width {
+        flex-wrap: wrap;
     }
 }

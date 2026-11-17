@@ -2,60 +2,599 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fresh First - Suggested Actions</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fresh First - Stock Management</title>
 
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/actions.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#f5f7ff;color:#1e293b}
+
+/* SIDEBAR */
+.sidebar{
+    width:250px;height:100vh;position:fixed;left:0;top:0;
+    padding:25px 18px;background:linear-gradient(180deg,#5427a8,#352071);
+    color:white;display:flex;flex-direction:column;z-index:10
+}
+.logo{display:flex;align-items:center;gap:12px;margin-bottom:35px}
+.logo-icon{font-size:35px}
+.logo h2{font-size:21px}
+.logo p{font-size:11px;opacity:.8;margin-top:4px}
+.sidebar-menu{display:flex;flex-direction:column;gap:9px}
+.sidebar-menu a{
+    text-decoration:none;color:#eee8ff;padding:13px 14px;
+    border-radius:9px;font-size:14px;display:flex;gap:12px;
+    align-items:center;transition:.3s
+}
+.sidebar-menu a:hover,.sidebar-menu a.active{background:rgba(255,255,255,.2);color:white}
+.sidebar-menu a span{font-size:18px}
+.logout{
+    margin-top:auto;border:none;background:rgba(255,255,255,.15);
+    color:white;padding:13px;border-radius:9px;cursor:pointer;text-align:left
+}
+
+/* MAIN */
+.main{margin-left:250px;padding:28px 32px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
+.header small{color:#8b80a8;font-size:11px;font-weight:bold;letter-spacing:1px}
+.header h1{font-size:27px;margin-top:7px;color:#25203b}
+.header p{font-size:13px;color:#8990a3;margin-top:6px}
+.profile{display:flex;align-items:center;gap:12px}
+.avatar{
+    width:43px;height:43px;border-radius:50%;background:#6d43c1;
+    color:white;display:flex;align-items:center;justify-content:center;font-weight:bold
+}
+.profile-info h4{font-size:13px}
+.profile-info p{font-size:11px;color:#8990a3;margin-top:4px}
+
+/* SUMMARY */
+.summary{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:18px;margin-bottom:25px
+}
+.summary-card{
+    background:white;padding:20px;border-radius:12px;
+    box-shadow:0 3px 15px rgba(35,25,70,.04);
+    border-left:4px solid #7045c2
+}
+.summary-card h2{font-size:27px;margin-top:12px}
+.summary-card p{font-size:12px;color:#8990a3;font-weight:bold}
+.summary-card.green{border-left-color:#22c55e}
+.summary-card.orange{border-left-color:#f59e0b}
+
+/* PANEL */
+.panel{
+    background:white;padding:23px;border-radius:13px;
+    box-shadow:0 3px 15px rgba(35,25,70,.04);margin-bottom:23px
+}
+.panel-heading{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:20px;gap:12px
+}
+.panel-heading h2{font-size:18px;color:#352071}
+
+/* FORM */
+.form-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:16px
+}
+.form-group{display:flex;flex-direction:column;gap:7px}
+.form-group label{font-size:12px;font-weight:bold;color:#555}
+.form-group input,.form-group select{
+    width:100%;padding:12px;border:1px solid #ddd7eb;
+    border-radius:7px;outline:none;font-size:13px;background:white
+}
+.form-group input:focus,.form-group select:focus{border-color:#7045c2}
+.form-buttons{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.btn{
+    border:none;padding:11px 19px;border-radius:7px;
+    cursor:pointer;font-weight:bold;font-size:12px
+}
+.btn-primary{background:#7045c2;color:white}
+.btn-secondary{background:#eee9f7;color:#5427a8}
+.btn:hover{opacity:.85}
+
+/* SEARCH */
+.search-box{
+    width:100%;max-width:320px;padding:11px 13px;
+    border:1px solid #ddd7eb;border-radius:7px;outline:none
+}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:750px}
+th{
+    background:#f7f4fc;color:#65558a;text-align:left;
+    padding:14px 12px;font-size:11px
+}
+td{padding:14px 12px;border-bottom:1px solid #f0edf5;font-size:12px}
+td strong{color:#352071}
+.action-btn{
+    padding:7px 10px;border:0;border-radius:5px;
+    cursor:pointer;font-size:11px;margin:2px
+}
+.edit-btn{background:#ede9fe;color:#6d28d9}
+.delete-btn{background:#fee2e2;color:#dc2626}
+.status{
+    padding:6px 8px;border-radius:5px;font-size:10px;font-weight:bold
+}
+.safe{background:#dcfce7;color:#15803d}
+.warning{background:#fef3c7;color:#b45309}
+.unsafe{background:#fee2e2;color:#dc2626}
+.empty{text-align:center;padding:30px;color:#999}
+
+/* RESPONSIVE */
+@media(max-width:1000px){
+    .form-grid{grid-template-columns:repeat(2,1fr)}
+    .summary{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:800px){
+    .sidebar{width:75px;padding:20px 10px}
+    .logo{justify-content:center}
+    .logo-text,.menu-text{display:none}
+    .sidebar-menu a{justify-content:center}
+    .logout{text-align:center;font-size:0}
+    .logout::first-letter{font-size:18px}
+    .main{margin-left:75px;padding:20px}
+}
+@media(max-width:550px){
+    .main{padding:14px}
+    .form-grid,.summary{grid-template-columns:1fr}
+    .profile-info{display:none}
+    .header h1{font-size:22px}
+}
+</style>
 </head>
+
 <body>
 
-    <header>
-        <h1>Fresh First</h1>
-        <h2>Suggested Actions</h2>
-    </header>
+<aside class="sidebar">
+    <div class="logo">
+        <div class="logo-icon">🥬</div>
+        <div class="logo-text">
+            <h2>Fresh First</h2>
+            <p>Perishable Stock System</p>
+        </div>
+    </div>
 
-    <nav>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="stock.html">Stock</a>
-        <a href="verification.html">Verification</a>
-        <a href="priority.html">Priority</a>
-        <a href="actions.html">Actions</a>
-        <a href="history.html">History</a>
-        <a href="reports.html">Reports</a>
+    <nav class="sidebar-menu">
+        <a href="dashboard.html"><span>📊</span><span class="menu-text">Dashboard</span></a>
+        <a href="stock.html" class="active"><span>📦</span><span class="menu-text">Stock Management</span></a>
+        <a href="categories.html"><span>🏷️</span><span class="menu-text">Categories</span></a>
+        <a href="verification.html"><span>🔍</span><span class="menu-text">Verification</span></a>
+        <a href="priority.html"><span>⚠️</span><span class="menu-text">Priority</span></a>
+        <a href="actions.html"><span>✅</span><span class="menu-text">Actions</span></a>
+        <a href="reports.html"><span>📈</span><span class="menu-text">Reports</span></a>
+        <a href="history.html"><span>📋</span><span class="menu-text">History</span></a>
+        <a href="users.html"><span>👥</span><span class="menu-text">Users</span></a>
+        <a href="settings.html"><span>⚙️</span><span class="menu-text">Settings</span></a>
     </nav>
 
-    <main>
-        <h2>Manage Product Actions</h2>
+    <button class="logout" onclick="logout()">🚪 Logout</button>
+</aside>
 
-        <form id="actionForm">
+<main class="main">
 
-            <label for="productName">Product Name</label>
-            <input type="text" id="productName"
-                   placeholder="Enter product name" required>
+    <header class="header">
+        <div>
+            <small>PERISHABLE STOCK MANAGEMENT</small>
+            <h1>Stock Management</h1>
+            <p>Add, update, search and manage your inventory products.</p>
+        </div>
+        <div class="profile">
+            <div class="avatar" id="avatar">A</div>
+            <div class="profile-info">
+                <h4 id="profileName">Administrator</h4>
+                <p id="profileRole">ADMIN</p>
+            </div>
+        </div>
+    </header>
 
-            <label for="suggestedAction">Suggested Action</label>
-            <select id="suggestedAction" required>
-                <option value="">Select Action</option>
-                <option value="Priority Sale">Priority Sale</option>
-                <option value="Quick Usage">Quick Usage</option>
-                <option value="Redistribution">Redistribution</option>
-                <option value="Further Inspection">Further Inspection</option>
-                <option value="Disposal">Disposal</option>
-            </select>
+    <!-- SUMMARY -->
+    <section class="summary">
+        <div class="summary-card">
+            <p>TOTAL PRODUCTS</p>
+            <h2 id="totalCount">0</h2>
+        </div>
+        <div class="summary-card green">
+            <p>SAFE PRODUCTS</p>
+            <h2 id="safeCount">0</h2>
+        </div>
+        <div class="summary-card orange">
+            <p>PRODUCTS NEEDING ATTENTION</p>
+            <h2 id="attentionCount">0</h2>
+        </div>
+    </section>
 
-            <label for="remarks">Remarks</label>
-            <textarea id="remarks"
-                      placeholder="Enter remarks"></textarea>
+    <!-- ADD PRODUCT FORM -->
+    <section class="panel">
+        <div class="panel-heading">
+            <h2 id="formTitle">➕ Add New Product</h2>
+        </div>
 
-            <button type="submit">Save Action</button>
+        <form id="productForm">
+            <div class="form-grid">
 
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="productName" placeholder="Enter product name" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="category" required>
+                        <option value="">Select category</option>
+                        <option value="Bakery">Bakery</option>
+                        <option value="Dairy">Dairy</option>
+                        <option value="Fruits">Fruits</option>
+                        <option value="Vegetables">Vegetables</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <input type="number" id="quantity" min="0.01" step="any" placeholder="Enter quantity" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Unit</label>
+                    <select id="unit" required>
+                        <option value="">Select unit</option>
+                        <option value="kg">kg</option>
+                        <option value="litres">litres</option>
+                        <option value="packets">packets</option>
+                        <option value="pieces">pieces</option>
+                        <option value="boxes">boxes</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Purchase Date</label>
+                    <input type="date" id="purchaseDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Expiry Date</label>
+                    <input type="date" id="expiryDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Storage Temperature (°C)</label>
+                    <input type="number" id="temperature" step="any" placeholder="Example: 5" required>
+                </div>
+
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="btn btn-primary" id="saveButton">Add Product</button>
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear Form</button>
+            </div>
         </form>
+    </section>
 
-    </main>
+    <!-- PRODUCT TABLE -->
+    <section class="panel">
+        <div class="panel-heading">
+            <h2>📦 Product Inventory</h2>
+            <input type="search" id="searchInput" class="search-box" placeholder="Search products...">
+        </div>
 
-    <script src="js/actions.js"></script>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>PRODUCT</th>
+                        <th>CATEGORY</th>
+                        <th>QUANTITY</th>
+                        <th>EXPIRY DATE</th>
+                        <th>TEMPERATURE</th>
+                        <th>STATUS</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody id="productTable"></tbody>
+            </table>
+        </div>
+    </section>
+
+</main>
+
+<script>
+
+/* INITIAL SAMPLE PRODUCTS */
+const initialProducts = [
+    {
+        id:1, name:"Fresh Milk", category:"Dairy",
+        quantity:20, unit:"litres",
+        purchaseDate:"2026-11-15", expiryDate:"2026-11-20",
+        temperature:5
+    },
+    {
+        id:2, name:"Apple", category:"Fruits",
+        quantity:30, unit:"kg",
+        purchaseDate:"2026-11-15", expiryDate:"2026-11-22",
+        temperature:6
+    },
+    {
+        id:3, name:"Banana", category:"Fruits",
+        quantity:25, unit:"kg",
+        purchaseDate:"2026-11-15", expiryDate:"2026-11-17",
+        temperature:8
+    },
+    {
+        id:4, name:"Carrot", category:"Vegetables",
+        quantity:15, unit:"kg",
+        purchaseDate:"2026-11-15", expiryDate:"2026-11-25",
+        temperature:5
+    },
+    {
+        id:5, name:"Bread", category:"Bakery",
+        quantity:20, unit:"packets",
+        purchaseDate:"2026-11-15", expiryDate:"2026-11-18",
+        temperature:22
+    }
+];
+
+const STORAGE_KEY = "freshFirstProducts";
+let products = [];
+let editingId = null;
+
+/* LOAD SAVED PRODUCTS */
+function loadProducts() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+
+        if (saved === null) {
+            products = initialProducts;
+            saveProducts();
+        } else {
+            products = JSON.parse(saved);
+            if (!Array.isArray(products)) products = [];
+        }
+    } catch(error) {
+        products = initialProducts;
+        saveProducts();
+    }
+}
+
+/* SAVE PRODUCTS */
+function saveProducts() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+}
+
+/* USER INFORMATION */
+function loadUser() {
+    let user = {};
+
+    try {
+        user = JSON.parse(localStorage.getItem("user") || "{}");
+    } catch(error) {}
+
+    const name = user.full_name || user.username ||
+        localStorage.getItem("username") || "Administrator";
+
+    const role = user.role || localStorage.getItem("role") || "ADMIN";
+
+    document.getElementById("profileName").textContent = name;
+    document.getElementById("profileRole").textContent = role;
+    document.getElementById("avatar").textContent =
+        name.charAt(0).toUpperCase();
+}
+
+/* LOGOUT */
+function logout() {
+    localStorage.removeItem("user");
+    localStorage.removeItem("username");
+    localStorage.removeItem("role");
+    window.location.href = "login.html";
+}
+
+/* PRODUCT STATUS */
+function getStatus(product) {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    const expiry = new Date(product.expiryDate + "T00:00:00");
+    const days = Math.round((expiry - today) / 86400000);
+
+    if (days < 0) return "UNSAFE";
+
+    const limits = {
+        "Bakery":2,
+        "Dairy":3,
+        "Fruits":3,
+        "Vegetables":3
+    };
+
+    if (days <= (limits[product.category] ?? 3)) return "WARNING";
+
+    const ranges = {
+        "Bakery":[15,25],
+        "Dairy":[2,8],
+        "Fruits":[4,12],
+        "Vegetables":[4,12]
+    };
+
+    const range = ranges[product.category];
+
+    if (range && (product.temperature < range[0] ||
+                  product.temperature > range[1])) {
+        return "WARNING";
+    }
+
+    return "SAFE";
+}
+
+/* UPDATE SUMMARY */
+function updateSummary() {
+    const safe = products.filter(p => getStatus(p) === "SAFE").length;
+    const attention = products.length - safe;
+
+    document.getElementById("totalCount").textContent = products.length;
+    document.getElementById("safeCount").textContent = safe;
+    document.getElementById("attentionCount").textContent = attention;
+}
+
+/* DISPLAY PRODUCTS */
+function displayProducts(list = products) {
+    const tbody = document.getElementById("productTable");
+    tbody.innerHTML = "";
+
+    if (list.length === 0) {
+        tbody.innerHTML = `
+            <tr><td colspan="7" class="empty">No products found.</td></tr>
+        `;
+        updateSummary();
+        return;
+    }
+
+    list.forEach(product => {
+        const status = getStatus(product);
+
+        const statusClass = status === "SAFE" ? "safe" :
+            status === "WARNING" ? "warning" : "unsafe";
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td><strong>${escapeHTML(product.name)}</strong></td>
+            <td>${escapeHTML(product.category)}</td>
+            <td>${escapeHTML(product.quantity)} ${escapeHTML(product.unit)}</td>
+            <td>${escapeHTML(product.expiryDate)}</td>
+            <td>${escapeHTML(product.temperature)} °C</td>
+            <td><span class="status ${statusClass}">${status}</span></td>
+            <td>
+                <button class="action-btn edit-btn" onclick="editProduct(${product.id})">Edit</button>
+                <button class="action-btn delete-btn" onclick="deleteProduct(${product.id})">Delete</button>
+            </td>
+        `;
+
+        tbody.appendChild(row);
+    });
+
+    updateSummary();
+}
+
+/* ESCAPE TEXT */
+function escapeHTML(value) {
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+}
+
+/* ADD OR UPDATE PRODUCT */
+document.getElementById("productForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const purchaseDate = document.getElementById("purchaseDate").value;
+    const expiryDate = document.getElementById("expiryDate").value;
+
+    if (expiryDate < purchaseDate) {
+        alert("Expiry date cannot be earlier than purchase date.");
+        return;
+    }
+
+    const product = {
+        id: editingId || Date.now(),
+        name: document.getElementById("productName").value.trim(),
+        category: document.getElementById("category").value,
+        quantity: Number(document.getElementById("quantity").value),
+        unit: document.getElementById("unit").value,
+        purchaseDate: purchaseDate,
+        expiryDate: expiryDate,
+        temperature: Number(document.getElementById("temperature").value)
+    };
+
+    if (!product.name || product.quantity <= 0) {
+        alert("Please enter valid product details.");
+        return;
+    }
+
+    if (editingId !== null) {
+        products = products.map(p =>
+            p.id === editingId ? product : p
+        );
+        alert("Product updated successfully!");
+    } else {
+        products.push(product);
+        alert("Product added successfully!");
+    }
+
+    saveProducts();
+    resetForm();
+    displayProducts();
+});
+
+/* EDIT PRODUCT */
+function editProduct(id) {
+    const product = products.find(p => p.id === id);
+
+    if (!product) return;
+
+    editingId = id;
+
+    document.getElementById("productName").value = product.name;
+    document.getElementById("category").value = product.category;
+    document.getElementById("quantity").value = product.quantity;
+    document.getElementById("unit").value = product.unit;
+    document.getElementById("purchaseDate").value = product.purchaseDate;
+    document.getElementById("expiryDate").value = product.expiryDate;
+    document.getElementById("temperature").value = product.temperature;
+
+    document.getElementById("formTitle").textContent = "✏️ Edit Product";
+    document.getElementById("saveButton").textContent = "Update Product";
+
+    window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* DELETE PRODUCT */
+function deleteProduct(id) {
+    const product = products.find(p => p.id === id);
+
+    if (!product) return;
+
+    if (confirm("Are you sure you want to delete " + product.name + "?")) {
+        products = products.filter(p => p.id !== id);
+        saveProducts();
+        displayProducts();
+
+        if (editingId === id) resetForm();
+
+        alert("Product deleted successfully!");
+    }
+}
+
+/* RESET FORM */
+function resetForm() {
+    document.getElementById("productForm").reset();
+
+    editingId = null;
+
+    document.getElementById("formTitle").textContent = "➕ Add New Product";
+    document.getElementById("saveButton").textContent = "Add Product";
+}
+
+/* SEARCH */
+document.getElementById("searchInput").addEventListener("input", function() {
+    const value = this.value.toLowerCase();
+
+    const filtered = products.filter(product =>
+        product.name.toLowerCase().includes(value) ||
+        product.category.toLowerCase().includes(value)
+    );
+
+    displayProducts(filtered);
+});
+
+/* START */
+document.addEventListener("DOMContentLoaded", function() {
+    loadUser();
+    loadProducts();
+    displayProducts();
+});
+
+</script>
 
 </body>
 </html>

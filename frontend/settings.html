@@ -2,57 +2,303 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fresh First - Settings</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/settings.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fresh First - Settings</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#f5f6fc;color:#252b45}
+.sidebar{position:fixed;width:235px;height:100vh;background:#211b45;color:white;padding:25px 16px}
+.logo{font-size:25px;font-weight:bold;margin-bottom:35px;padding-left:12px}
+.menu a{display:block;color:#d9d5ef;text-decoration:none;padding:13px 15px;border-radius:8px;margin:5px 0}
+.menu a:hover,.menu a.active{background:#5144a5;color:white}
+.main{margin-left:235px;padding:30px}
+h1{font-size:27px}
+.subtitle{color:#777;margin:7px 0 25px}
+.panel{background:white;border-radius:12px;padding:24px;margin-bottom:22px;box-shadow:0 2px 10px #00000008}
+.panel h3{margin-bottom:8px}
+.description{color:#888;font-size:13px;margin-bottom:20px}
+.field{margin-bottom:17px}
+label{display:block;font-size:14px;margin-bottom:7px;font-weight:bold}
+input,select{width:100%;max-width:500px;padding:11px;border:1px solid #ddd;border-radius:7px;font-size:14px}
+button{border:0;padding:11px 17px;border-radius:7px;cursor:pointer;font-weight:bold}
+.primary{background:#5144a5;color:white}
+.secondary{background:#eee;color:#333}
+.danger{background:#ffe8e8;color:#c62828}
+.setting-row{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:15px 0;border-bottom:1px solid #eee}
+.setting-row:last-child{border:0}
+.setting-row p{font-size:14px;font-weight:bold}
+.setting-row small{display:block;color:#888;margin-top:5px}
+input[type=checkbox]{width:18px;accent-color:#5144a5}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.notice{background:#f0edff;color:#5144a5;padding:12px;border-radius:7px;font-size:13px;margin-top:12px}
+@media(max-width:750px){
+.sidebar{width:65px;padding:20px 7px}
+.logo{font-size:0;padding:0}
+.logo:after{content:"FF";font-size:17px}
+.menu a{font-size:0;text-align:center;padding:13px 4px}
+.menu a:first-letter{font-size:15px}
+.main{margin-left:65px;padding:18px}
+}
+</style>
 </head>
+
 <body>
 
-    <header>
-        <h1>Fresh First</h1>
-        <p>System Settings</p>
-    </header>
-
-    <nav>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="stock.html">Stock</a>
-        <a href="verification.html">Verification</a>
-        <a href="priority.html">Priority</a>
-        <a href="actions.html">Actions</a>
-        <a href="history.html">History</a>
-        <a href="reports.html">Reports</a>
-        <a href="users.html">Users</a>
-        <a href="categories.html">Categories</a>
-        <a href="settings.html">Settings</a>
+<aside class="sidebar">
+    <div class="logo">Fresh First</div>
+    <nav class="menu">
+        <a href="dashboard.html">▣ Dashboard</a>
+        <a href="stock.html">▤ Stock</a>
+        <a href="categories.html">▦ Categories</a>
+        <a href="verification.html">✓ Verification</a>
+        <a href="priority.html">⚑ Priority</a>
+        <a href="actions.html">☷ Actions</a>
+        <a href="history.html">◷ History</a>
+        <a href="reports.html">▥ Reports</a>
+        <a href="users.html">♙ Users</a>
+        <a href="settings.html" class="active">⚙ Settings</a>
+        <a href="#" onclick="logout()">↪ Logout</a>
     </nav>
+</aside>
 
-    <main>
-        <h2>Verification Settings</h2>
+<main class="main">
+    <h1>Settings</h1>
+    <p class="subtitle">Manage your profile and application preferences</p>
 
-        <form id="settingsForm">
+    <section class="panel">
+        <h3>Profile Settings</h3>
+        <p class="description">Update your personal information.</p>
 
-            <label for="expiryThreshold">Expiry Warning (Days)</label>
-            <input type="number" id="expiryThreshold"
-                   min="1" value="3" required>
+        <div class="field">
+            <label>Full Name</label>
+            <input type="text" id="fullName" placeholder="Enter your full name">
+        </div>
 
-            <label for="criticalThreshold">Critical Stock Quantity</label>
-            <input type="number" id="criticalThreshold"
-                   min="1" value="5" required>
+        <div class="field">
+            <label>Username</label>
+            <input type="text" id="username" placeholder="Enter username">
+        </div>
 
-            <label for="defaultTemperature">
-                Default Storage Temperature (°C)
-            </label>
-            <input type="number" id="defaultTemperature"
-                   step="0.1" required>
+        <div class="field">
+            <label>Role</label>
+            <input type="text" id="role" disabled>
+        </div>
 
-            <button type="submit">Save Settings</button>
+        <button class="primary" onclick="saveProfile()">Save Profile</button>
+    </section>
 
-        </form>
-    </main>
+    <section class="panel">
+        <h3>Application Preferences</h3>
+        <p class="description">Customize your Fresh First application.</p>
 
-    <script src="js/settings.js"></script>
+        <div class="field">
+            <label>Date Format</label>
+            <select id="dateFormat">
+                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Default Stock View</label>
+            <select id="stockView">
+                <option value="all">All Products</option>
+                <option value="safe">Safe Products</option>
+                <option value="warning">Warning Products</option>
+                <option value="unsafe">Unsafe Products</option>
+            </select>
+        </div>
+
+        <button class="primary" onclick="savePreferences()">Save Preferences</button>
+    </section>
+
+    <section class="panel">
+        <h3>Notification Settings</h3>
+        <p class="description">Choose which alerts you want to display.</p>
+
+        <div class="setting-row">
+            <div>
+                <p>Expiry Alerts</p>
+                <small>Show alerts for products nearing expiry.</small>
+            </div>
+            <input type="checkbox" id="expiryAlert">
+        </div>
+
+        <div class="setting-row">
+            <div>
+                <p>Temperature Alerts</p>
+                <small>Show alerts when storage temperature is outside limits.</small>
+            </div>
+            <input type="checkbox" id="temperatureAlert">
+        </div>
+
+        <div class="setting-row">
+            <div>
+                <p>Priority Alerts</p>
+                <small>Show high-priority stock alerts.</small>
+            </div>
+            <input type="checkbox" id="priorityAlert">
+        </div>
+
+        <button class="primary" onclick="saveNotifications()">Save Notifications</button>
+    </section>
+
+    <section class="panel">
+        <h3>Data Management</h3>
+        <p class="description">Manage the sample data stored in this browser.</p>
+
+        <div class="notice">
+            This frontend currently uses browser localStorage. It is separate from your MySQL database.
+        </div>
+
+        <br>
+        <div class="actions">
+            <button class="secondary" onclick="exportData()">Export Application Data</button>
+            <button class="danger" onclick="clearDemoData()">Clear Application Data</button>
+        </div>
+    </section>
+
+</main>
+
+<script>
+const SETTINGS_KEY = "freshFirstSettings";
+
+function loadSettings(){
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+    document.getElementById("fullName").value =
+        user.fullName || user.full_name || "";
+
+    document.getElementById("username").value =
+        user.username || localStorage.getItem("username") || "";
+
+    document.getElementById("role").value =
+        user.role || localStorage.getItem("role") || "Not available";
+
+    const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+
+    document.getElementById("dateFormat").value =
+        settings.dateFormat || "DD/MM/YYYY";
+
+    document.getElementById("stockView").value =
+        settings.stockView || "all";
+
+    document.getElementById("expiryAlert").checked =
+        settings.expiryAlert !== false;
+
+    document.getElementById("temperatureAlert").checked =
+        settings.temperatureAlert !== false;
+
+    document.getElementById("priorityAlert").checked =
+        settings.priorityAlert !== false;
+}
+
+function saveProfile(){
+    const fullName = document.getElementById("fullName").value.trim();
+    const username = document.getElementById("username").value.trim();
+
+    if(!fullName || !username){
+        alert("Please enter your full name and username.");
+        return;
+    }
+
+    let user = JSON.parse(localStorage.getItem("user") || "{}");
+
+    user.fullName = fullName;
+    user.username = username;
+
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("username", username);
+
+    alert("Profile updated successfully.");
+}
+
+function savePreferences(){
+    const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+
+    settings.dateFormat = document.getElementById("dateFormat").value;
+    settings.stockView = document.getElementById("stockView").value;
+
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    alert("Preferences saved successfully.");
+}
+
+function saveNotifications(){
+    const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+
+    settings.expiryAlert = document.getElementById("expiryAlert").checked;
+    settings.temperatureAlert = document.getElementById("temperatureAlert").checked;
+    settings.priorityAlert = document.getElementById("priorityAlert").checked;
+
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    alert("Notification settings saved successfully.");
+}
+
+function exportData(){
+    const keys = [
+        "freshFirstProducts",
+        "freshFirstCategories",
+        "freshFirstVerifications",
+        "freshFirstActions",
+        "freshFirstHistory",
+        "freshFirstUsers",
+        "freshFirstSettings"
+    ];
+
+    const data = {};
+
+    keys.forEach(key => {
+        data[key] = JSON.parse(localStorage.getItem(key) || "[]");
+    });
+
+    const file = new Blob(
+        [JSON.stringify(data, null, 4)],
+        {type:"application/json"}
+    );
+
+    const url = URL.createObjectURL(file);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "FreshFirst_Backup.json";
+    link.click();
+
+    URL.revokeObjectURL(url);
+}
+
+function clearDemoData(){
+    if(!confirm("This will clear Fresh First application data saved in this browser. Continue?")){
+        return;
+    }
+
+    const keys = [
+        "freshFirstProducts",
+        "freshFirstCategories",
+        "freshFirstVerifications",
+        "freshFirstActions",
+        "freshFirstHistory",
+        "freshFirstUsers",
+        "freshFirstSettings"
+    ];
+
+    keys.forEach(key => localStorage.removeItem(key));
+
+    alert("Application data cleared. You may need to log in again.");
+    window.location.href = "login.html";
+}
+
+function logout(){
+    localStorage.removeItem("user");
+    localStorage.removeItem("username");
+    localStorage.removeItem("role");
+    window.location.href = "login.html";
+}
+
+loadSettings();
+</script>
 
 </body>
 </html>

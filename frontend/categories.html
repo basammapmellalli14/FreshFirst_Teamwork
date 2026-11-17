@@ -2,67 +2,325 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fresh First - Categories</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fresh First - Categories</title>
 
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/categories.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#f5f6fc;color:#263044}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:245px;background:#211b45;color:white;padding:25px 16px;flex-shrink:0}
+.logo{font-size:25px;font-weight:bold;margin:5px 12px 35px}
+.logo span{color:#a99aff}
+.menu a{display:block;color:#d9d5ee;text-decoration:none;padding:13px 15px;margin:5px 0;border-radius:9px;font-size:14px}
+.menu a:hover,.menu a.active{background:#51458d;color:white}
+.main{flex:1;padding:30px;min-width:0}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;gap:15px}
+.topbar h1{font-size:25px}
+.profile{background:white;padding:11px 17px;border-radius:10px;font-size:14px}
+.subtitle{color:#7d8495;margin-top:7px;font-size:14px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:25px 0}
+.card{background:white;padding:22px;border-radius:13px;box-shadow:0 3px 12px #2020400b}
+.card p{color:#81879a;font-size:13px}
+.card h2{font-size:28px;margin-top:10px;color:#51458d}
+.panel{background:white;padding:24px;border-radius:13px;box-shadow:0 3px 12px #2020400b;margin-bottom:22px}
+.panel h2{font-size:18px;margin-bottom:18px}
+.form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+.field label{display:block;font-size:13px;margin-bottom:7px;color:#555e70}
+.field input{width:100%;padding:11px;border:1px solid #dfe2eb;border-radius:7px;outline:none}
+.field input:focus{border-color:#7867c7}
+.actions{display:flex;gap:10px;margin-top:18px}
+button{border:0;padding:11px 17px;border-radius:7px;cursor:pointer;font-weight:bold}
+.primary{background:#594b9c;color:white}
+.secondary{background:#eceaf6;color:#51458d}
+.danger{background:#ffe8e8;color:#c43c3c}
+.table-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:17px}
+.search{padding:10px 13px;border:1px solid #dfe2eb;border-radius:7px;width:230px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{text-align:left;padding:14px 12px;border-bottom:1px solid #edf0f5;font-size:13px}
+th{color:#777f91;background:#fafaff}
+.tag{display:inline-block;padding:5px 9px;border-radius:15px;background:#eeeafd;color:#594b9c;font-size:11px}
+.row-actions{display:flex;gap:7px}
+.row-actions button{padding:7px 10px;font-size:11px}
+.note{background:#f0effb;border-left:4px solid #7867c7;padding:15px;border-radius:7px;font-size:13px;line-height:1.7;color:#514b70}
+@media(max-width:900px){.sidebar{width:190px}.form-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.layout{display:block}.sidebar{width:100%;padding:15px}.menu{display:flex;overflow-x:auto}.menu a{white-space:nowrap}.main{padding:18px}.cards{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}}
+</style>
 </head>
+
 <body>
+<div class="layout">
 
-    <header>
-        <h1>Fresh First</h1>
-        <h2>Product Category Management</h2>
-    </header>
-
-    <nav>
+<aside class="sidebar">
+    <div class="logo">Fresh<span>First</span></div>
+    <nav class="menu">
         <a href="dashboard.html">Dashboard</a>
-        <a href="stock.html">Stock</a>
+        <a href="stock.html">Stock Management</a>
+        <a class="active" href="categories.html">Categories</a>
         <a href="verification.html">Verification</a>
-        <a href="priority.html">Priority</a>
+        <a href="priority.html">Priority Items</a>
         <a href="actions.html">Actions</a>
         <a href="history.html">History</a>
         <a href="reports.html">Reports</a>
         <a href="users.html">Users</a>
-        <a href="categories.html">Categories</a>
+        <a href="settings.html">Settings</a>
+        <a href="login.html" onclick="logout()">Logout</a>
     </nav>
+</aside>
 
-    <main>
-        <h2>Add Product Category</h2>
+<main class="main">
+    <div class="topbar">
+        <div>
+            <h1>Category Management</h1>
+            <p class="subtitle">Manage product categories and storage requirements</p>
+        </div>
+        <div class="profile" id="profileName">Welcome, Admin</div>
+    </div>
+
+    <section class="cards">
+        <div class="card">
+            <p>Total Categories</p>
+            <h2 id="totalCategories">0</h2>
+        </div>
+        <div class="card">
+            <p>Storage Guidelines</p>
+            <h2 id="guidelines">0</h2>
+        </div>
+        <div class="card">
+            <p>Categories in Use</p>
+            <h2 id="categoriesInUse">0</h2>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2 id="formTitle">Add New Category</h2>
 
         <form id="categoryForm">
+            <div class="form-grid">
+                <div class="field">
+                    <label>Category Name</label>
+                    <input id="categoryName" type="text" placeholder="Enter category name" required>
+                </div>
+                <div class="field">
+                    <label>Minimum Storage Temperature (°C)</label>
+                    <input id="minTemp" type="number" step="0.1" required>
+                </div>
+                <div class="field">
+                    <label>Maximum Storage Temperature (°C)</label>
+                    <input id="maxTemp" type="number" step="0.1" required>
+                </div>
+                <div class="field">
+                    <label>Near Expiry Days</label>
+                    <input id="expiryDays" type="number" min="0" required>
+                </div>
+            </div>
 
-            <label for="categoryName">Category Name</label>
-            <input type="text" id="categoryName"
-                   placeholder="Enter category name" required>
-
-            <label for="storageTemperature">
-                Storage Temperature (°C)
-            </label>
-            <input type="number" id="storageTemperature"
-                   step="0.1" placeholder="Enter temperature" required>
-
-            <button type="submit">Add Category</button>
-
+            <div class="actions">
+                <button class="primary" type="submit" id="saveButton">Add Category</button>
+                <button class="secondary" type="button" onclick="resetForm()">Clear</button>
+            </div>
         </form>
+    </section>
 
-        <h2>Category Details</h2>
+    <section class="panel">
+        <div class="table-head">
+            <h2>Category List</h2>
+            <input class="search" id="searchInput" type="search" placeholder="Search category...">
+        </div>
 
-        <table id="categoryTable">
-            <thead>
-                <tr>
-                    <th>Category Name</th>
-                    <th>Storage Temperature (°C)</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category ID</th>
+                        <th>Category Name</th>
+                        <th>Minimum Temp</th>
+                        <th>Maximum Temp</th>
+                        <th>Near Expiry</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="categoryTable"></tbody>
+            </table>
+        </div>
+    </section>
 
-    </main>
+    <section class="panel">
+        <h2>Storage Guidelines</h2>
+        <div class="note">
+            <strong>Bakery:</strong> Store between 15°C and 25°C. Near expiry warning: 2 days.<br>
+            <strong>Dairy:</strong> Store between 2°C and 8°C. Near expiry warning: 3 days.<br>
+            <strong>Fruits:</strong> Store between 4°C and 12°C. Near expiry warning: 3 days.<br>
+            <strong>Vegetables:</strong> Store between 4°C and 12°C. Near expiry warning: 3 days.
+        </div>
+    </section>
+</main>
+</div>
 
-    <script src="js/categories.js"></script>
+<script>
+const STORAGE_KEY = "freshFirstCategories";
 
+const defaultCategories = [
+    {id:1,name:"Bakery",min:15,max:25,days:2},
+    {id:2,name:"Dairy",min:2,max:8,days:3},
+    {id:3,name:"Fruits",min:4,max:12,days:3},
+    {id:4,name:"Vegetables",min:4,max:12,days:3}
+];
+
+let categories = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null") || defaultCategories;
+let editingId = null;
+
+function saveData(){
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(categories));
+}
+
+function escapeHTML(value){
+    return String(value).replace(/[&<>"']/g,function(char){
+        return {
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            '"':"&quot;",
+            "'":"&#39;"
+        }[char];
+    });
+}
+
+function renderCategories(){
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    const filtered = categories.filter(c => c.name.toLowerCase().includes(search));
+
+    document.getElementById("categoryTable").innerHTML = filtered.map(c => `
+        <tr>
+            <td>${c.id}</td>
+            <td><strong>${escapeHTML(c.name)}</strong></td>
+            <td>${c.min}°C</td>
+            <td>${c.max}°C</td>
+            <td>${c.days} days</td>
+            <td>
+                <div class="row-actions">
+                    <button class="secondary" onclick="editCategory(${c.id})">Edit</button>
+                    <button class="danger" onclick="deleteCategory(${c.id})">Delete</button>
+                </div>
+            </td>
+        </tr>
+    `).join("");
+
+    document.getElementById("totalCategories").textContent = categories.length;
+    document.getElementById("guidelines").textContent = categories.length;
+
+    const products = JSON.parse(localStorage.getItem("freshFirstProducts") || "[]");
+    const used = new Set(products.map(p => String(p.category).toLowerCase()));
+    document.getElementById("categoriesInUse").textContent =
+        categories.filter(c => used.has(c.name.toLowerCase())).length;
+}
+
+document.getElementById("categoryForm").addEventListener("submit",function(e){
+    e.preventDefault();
+
+    const name = document.getElementById("categoryName").value.trim();
+    const min = Number(document.getElementById("minTemp").value);
+    const max = Number(document.getElementById("maxTemp").value);
+    const days = Number(document.getElementById("expiryDays").value);
+
+    if(!name){
+        alert("Enter a category name.");
+        return;
+    }
+
+    if(min > max){
+        alert("Minimum temperature cannot be greater than maximum temperature.");
+        return;
+    }
+
+    const duplicate = categories.some(c =>
+        c.name.toLowerCase() === name.toLowerCase() && c.id !== editingId
+    );
+
+    if(duplicate){
+        alert("This category already exists.");
+        return;
+    }
+
+    if(editingId !== null){
+        const category = categories.find(c => c.id === editingId);
+        category.name = name;
+        category.min = min;
+        category.max = max;
+        category.days = days;
+    }else{
+        const newId = categories.length
+            ? Math.max(...categories.map(c => c.id)) + 1
+            : 1;
+
+        categories.push({id:newId,name,min,max,days});
+    }
+
+    saveData();
+    resetForm();
+    renderCategories();
+});
+
+function editCategory(id){
+    const c = categories.find(item => item.id === id);
+    if(!c) return;
+
+    editingId = id;
+    document.getElementById("categoryName").value = c.name;
+    document.getElementById("minTemp").value = c.min;
+    document.getElementById("maxTemp").value = c.max;
+    document.getElementById("expiryDays").value = c.days;
+    document.getElementById("formTitle").textContent = "Edit Category";
+    document.getElementById("saveButton").textContent = "Update Category";
+    window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function deleteCategory(id){
+    const c = categories.find(item => item.id === id);
+    if(!c) return;
+
+    const products = JSON.parse(localStorage.getItem("freshFirstProducts") || "[]");
+    const isUsed = products.some(p =>
+        String(p.category).toLowerCase() === c.name.toLowerCase()
+    );
+
+    if(isUsed){
+        alert("This category is used by products. Remove or change those products first.");
+        return;
+    }
+
+    if(!confirm("Delete " + c.name + " category?")) return;
+
+    categories = categories.filter(item => item.id !== id);
+    saveData();
+    renderCategories();
+}
+
+function resetForm(){
+    document.getElementById("categoryForm").reset();
+    editingId = null;
+    document.getElementById("formTitle").textContent = "Add New Category";
+    document.getElementById("saveButton").textContent = "Add Category";
+}
+
+document.getElementById("searchInput").addEventListener("input",renderCategories);
+
+function logout(){
+    localStorage.removeItem("user");
+    localStorage.removeItem("username");
+    localStorage.removeItem("role");
+}
+
+const user = JSON.parse(localStorage.getItem("user") || "{}");
+const username = user.full_name || user.username || localStorage.getItem("username");
+if(username){
+    document.getElementById("profileName").textContent = "Welcome, " + username;
+}
+
+saveData();
+renderCategories();
+</script>
 </body>
 </html>

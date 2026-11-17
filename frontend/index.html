@@ -2,21 +2,332 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fresh First</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fresh First - Home</title>
 
-    <link rel="stylesheet" href="css/style.css">
-    
-    <meta http-equiv="refresh" content="2;url=login.html">
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,sans-serif;
+    background:#f7f7fc;
+    color:#252b45;
+}
+
+header{
+    background:#211b45;
+    color:white;
+    padding:20px 7%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    font-size:25px;
+    font-weight:bold;
+}
+
+nav a{
+    color:white;
+    text-decoration:none;
+    margin-left:22px;
+    font-size:14px;
+}
+
+nav a:hover{
+    color:#c9c1ff;
+}
+
+.hero{
+    min-height:540px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:40px;
+    padding:70px 8%;
+    background:linear-gradient(120deg,#f0edff,#ffffff);
+}
+
+.hero-content{
+    max-width:550px;
+}
+
+.hero h1{
+    font-size:45px;
+    line-height:1.2;
+    color:#211b45;
+    margin-bottom:20px;
+}
+
+.hero h1 span{
+    color:#6252c7;
+}
+
+.hero p{
+    font-size:16px;
+    line-height:1.8;
+    color:#666;
+    margin-bottom:28px;
+}
+
+.buttons{
+    display:flex;
+    gap:13px;
+    flex-wrap:wrap;
+}
+
+button{
+    padding:14px 23px;
+    border:none;
+    border-radius:7px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:bold;
+}
+
+.primary{
+    background:#5144a5;
+    color:white;
+}
+
+.secondary{
+    background:white;
+    color:#5144a5;
+    border:1px solid #5144a5;
+}
+
+.hero-image{
+    width:42%;
+    max-width:450px;
+    min-height:280px;
+    background:#e6e1ff;
+    border-radius:25px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:110px;
+}
+
+.features{
+    padding:65px 8%;
+    text-align:center;
+}
+
+.features h2{
+    font-size:30px;
+    margin-bottom:12px;
+}
+
+.section-subtitle{
+    color:#888;
+    margin-bottom:35px;
+}
+
+.feature-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:22px;
+}
+
+.feature-card{
+    background:white;
+    padding:30px 22px;
+    border-radius:12px;
+    box-shadow:0 3px 15px #00000009;
+}
+
+.feature-icon{
+    font-size:35px;
+    margin-bottom:15px;
+}
+
+.feature-card h3{
+    margin-bottom:12px;
+    color:#5144a5;
+}
+
+.feature-card p{
+    color:#777;
+    font-size:14px;
+    line-height:1.7;
+}
+
+footer{
+    background:#211b45;
+    color:#ddd;
+    text-align:center;
+    padding:25px;
+    font-size:13px;
+}
+
+@media(max-width:750px){
+    header{
+        flex-direction:column;
+        gap:18px;
+    }
+
+    nav a{
+        margin:0 7px;
+    }
+
+    .hero{
+        flex-direction:column;
+        text-align:center;
+    }
+
+    .hero h1{
+        font-size:34px;
+    }
+
+    .buttons{
+        justify-content:center;
+    }
+
+    .hero-image{
+        width:100%;
+        min-height:220px;
+    }
+
+    .feature-grid{
+        grid-template-columns:1fr;
+    }
+}
+</style>
 </head>
+
 <body>
 
-    <div class="welcome-container">
-        <h1>Fresh First</h1>
-        <p>Perishable Stock Verification System</p>
-        <p>Welcome! Redirecting to Login...</p>
+<header>
+    <div class="logo">Fresh First</div>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="#features">Features</a>
+        <a href="login.html">Login</a>
+    </nav>
+</header>
+
+<section class="hero">
+
+    <div class="hero-content">
+        <h1>
+            Smart Way to Manage
+            <span>Perishable Stock</span>
+        </h1>
+
+        <p>
+            Fresh First is a Perishable Stock Verification System
+            designed to monitor product expiry dates, storage
+            temperatures, stock conditions and verification activities.
+            Manage your stock efficiently and reduce product wastage.
+        </p>
+
+        <div class="buttons">
+            <button class="primary" onclick="openLogin()">
+                Get Started
+            </button>
+
+            <button class="secondary" onclick="showFeatures()">
+                Explore Features
+            </button>
+        </div>
     </div>
+
+    <div class="hero-image">
+        🥬🍎🥛
+    </div>
+
+</section>
+
+<section class="features" id="features">
+
+    <h2>Our Features</h2>
+
+    <p class="section-subtitle">
+        Everything needed to monitor perishable stock
+    </p>
+
+    <div class="feature-grid">
+
+        <div class="feature-card">
+            <div class="feature-icon">📦</div>
+            <h3>Stock Management</h3>
+            <p>
+                Add, update, search and manage perishable
+                products and their quantities.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🌡️</div>
+            <h3>Temperature Verification</h3>
+            <p>
+                Verify storage temperatures and identify
+                products that need attention.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">⏰</div>
+            <h3>Expiry Monitoring</h3>
+            <p>
+                Monitor expiry dates and identify products
+                that are nearing expiry.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">⚑</div>
+            <h3>Priority Management</h3>
+            <p>
+                Identify critical and high-priority stock
+                that requires immediate attention.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Reports</h3>
+            <p>
+                View stock summaries, verification results
+                and application reports.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">👥</div>
+            <h3>User Management</h3>
+            <p>
+                Manage system users and assign different
+                roles and responsibilities.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+<footer>
+    <p>Fresh First © 2026 | Perishable Stock Verification System</p>
+</footer>
+
+<script>
+function openLogin(){
+    window.location.href = "login.html";
+}
+
+function showFeatures(){
+    document.getElementById("features").scrollIntoView({
+        behavior:"smooth"
+    });
+}
+</script>
 
 </body>
 </html>
