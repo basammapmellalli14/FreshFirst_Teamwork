@@ -1,49 +1,13 @@
 
 /* =====================================
    FRESH FIRST - DASHBOARD JAVASCRIPT
+   DATABASE API INTEGRATION
    ===================================== */
 
-/* SAMPLE FRONTEND DATA */
+let products = [];
+let attentionItems = [];
 
-const products = [
-    {
-        product_name: "Fresh Milk",
-        category_name: "Dairy",
-        quantity: 20,
-        unit: "litres",
-        expiry_date: "2026-11-20"
-    },
-    {
-        product_name: "Apple",
-        category_name: "Fruits",
-        quantity: 30,
-        unit: "kg",
-        expiry_date: "2026-11-22"
-    },
-    {
-        product_name: "Banana",
-        category_name: "Fruits",
-        quantity: 25,
-        unit: "kg",
-        expiry_date: "2026-11-17"
-    },
-    {
-        product_name: "Carrot",
-        category_name: "Vegetables",
-        quantity: 15,
-        unit: "kg",
-        expiry_date: "2026-11-25"
-    },
-    {
-        product_name: "Bread",
-        category_name: "Bakery",
-        quantity: 20,
-        unit: "packets",
-        expiry_date: "2026-11-18"
-    }
-];
-
-/* CALCULATE PRODUCT STATUS */
+/* CALCULATE DAYS LEFT */
 
 function getDaysLeft(expiryDate) {
     const today = new Date();
@@ -52,24 +16,34 @@ function getDaysLeft(expiryDate) {
     const expiry = new Date(expiryDate + "T00:00:00");
     expiry.setHours(0, 0, 0, 0);
 
-    return Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+    return Math.ceil(
+        (expiry - today) / (1000 * 60 * 60 * 24)
+    );
 }
 
-products.forEach(product => {
+/* DETERMINE PRODUCT STATUS */
+
+function prepareProduct(product) {
     product.days_left = getDaysLeft(product.expiry_date);
 
-    if (product.days_left < 0) {
+    const priority = String(product.priority || "").toUpperCase();
+
+    if (product.days_left < 0 || priority === "CRITICAL") {
         product.status = "UNSAFE";
+    } else if (
+        ["HIGH", "MEDIUM", "INSPECTION"].includes(priority)
+    ) {
+        product.status = "WARNING";
+    } else if (priority === "LOW") {
+        product.status = "SAFE";
     } else if (product.days_left <= 3) {
         product.status = "WARNING";
     } else {
         product.status = "SAFE";
     }
-});
 
-/* NEEDS ATTENTION DATA */
-
-let attentionItems = [];
+    return product;
+}
 
 /* SAFE HTML */
 
@@ -80,16 +54,6 @@ function escapeHTML(value) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-}
-
-/* LOGOUT */
-
-function logout() {
-    localStorage.removeItem("user");
-    localStorage.removeItem("username");
-    localStorage.removeItem("role");
-
-    window.location.href = "login.html";
 }
 
 /* USER INFORMATION */
@@ -118,17 +82,31 @@ function loadUser() {
     const profileRole = document.getElementById("profileRole");
     const avatar = document.getElementById("avatar");
 
-    if (profileName) {
-        profileName.textContent = name;
-    }
-
-    if (profileRole) {
-        profileRole.textContent = role;
-    }
+    if (profileName) profileName.textContent = name;
+    if (profileRole) profileRole.textContent = role;
 
     if (avatar) {
         avatar.textContent = name.charAt(0).toUpperCase();
     }
+}
+
+/* LOGOUT */
+
+async function logout() {
+    try {
+        await fetch("/api/logout", {
+            method: "POST",
+            credentials: "same-origin"
+        });
+    } catch (error) {
+        console.error("Logout error:", error);
+    }
+
+    localStorage.removeItem("user");
+    localStorage.removeItem("username");
+    localStorage.removeItem("role");
+
+    window.location.href = "login.html";
 }
 
 /* SLIDER */
@@ -140,7 +118,7 @@ function showSlide(index) {
     const slides = document.querySelectorAll(".slide");
     const dots = document.querySelectorAll(".slider-dot");
 
-    if (slides.length === 0) return;
+    if (!slides.length) return;
 
     currentSlide = (index + slides.length) % slides.length;
 
@@ -159,6 +137,65 @@ function startSlider() {
     slideTimer = setInterval(() => {
         showSlide(currentSlide + 1);
     }, 4000);
+}
+
+/* LOAD PRODUCTS FROM DATABASE API */
+
+async function loadProducts() {
+    const container = document.getElementById("productList");
+
+    if (container) {
+        container.innerHTML = "<p>Loading products...</p>";
+    }
+
+    try {
+        const response = await fetch("/api/products", {
+            method: "GET",
+            credentials: "same-origin",
+            headers: {
+                "Accept": "application/json"
+            }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.status !== "success") {
+            throw new Error(
+                data.message || "Unable to load products."
+            );
+        }
+
+        products = (data.products || []).map(prepareProduct);
+
+        updateHealth();
+        displayProducts();
+        displayCritical();
+
+    } catch (error) {
+        console.error("Dashboard API Error:", error);
+
+        products = [];
+
+        updateHealth();
+
+        if (container) {
+            container.innerHTML =
+                `<p>Unable to load products: ${escapeHTML(error.message)}</p>`;
+        }
+
+        const critical = document.getElementById("criticalList");
+
+        if (critical) {
+            critical.innerHTML =
+                "<p>Unable to load attention items.</p>";
+        }
+
+        const count = document.getElementById("productCount");
+
+        if (count) {
+            count.textContent = "0 products";
+        }
+    }
 }
 
 /* STOCK HEALTH */
@@ -231,7 +268,7 @@ function updateHealth() {
     setText("healthStatus", status);
 }
 
-/* PRODUCT STATUS */
+/* DISPLAY PRODUCTS */
 
 function displayProducts() {
     const container = document.getElementById("productList");
@@ -244,6 +281,11 @@ function displayProducts() {
     }
 
     container.innerHTML = "";
+
+    if (products.length === 0) {
+        container.innerHTML = "<p>No products available.</p>";
+        return;
+    }
 
     products.forEach(product => {
         const daysLeft = Number(product.days_left);
@@ -307,10 +349,10 @@ function displayCritical() {
             product_name: product.product_name,
             action_type: product.status === "UNSAFE"
                 ? "Expired product"
-                : "Near expiry product",
+                : "Product needs inspection",
             description: product.status === "UNSAFE"
                 ? "Remove this product from available stock."
-                : "Check this product and take action before expiry.",
+                : "Check this product and take action.",
             priority: product.status === "UNSAFE"
                 ? "CRITICAL"
                 : "HIGH"
@@ -366,14 +408,12 @@ function displayCurrentDate() {
 
 /* START DASHBOARD */
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", async function() {
     loadUser();
     displayCurrentDate();
 
-    updateHealth();
-    displayProducts();
-    displayCritical();
-
     showSlide(0);
     startSlider();
+
+    await loadProducts();
 });

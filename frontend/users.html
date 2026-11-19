@@ -102,12 +102,12 @@ th{color:#777;background:#fafaff}
     </section>
 
     <div class="toolbar">
-        <input id="search" placeholder="Search by name or username..." oninput="renderUsers()">
-        <select id="roleFilter" onchange="renderUsers()">
+        <input id="search" placeholder="Search by name or username...">
+        <select id="roleFilter">
             <option value="">All Roles</option>
-            <option value="ADMIN">Admin</option>
-            <option value="MANAGER">Manager</option>
-            <option value="STAFF">Staff</option>
+            <option value="Admin">Admin</option>
+            <option value="Store Manager">Manager</option>
+            <option value="Staff">Staff</option>
         </select>
     </div>
 
@@ -124,7 +124,11 @@ th{color:#777;background:#fafaff}
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody id="userTable"></tbody>
+            <tbody id="userTable">
+                <tr>
+                    <td colspan="6" class="empty">Loading users...</td>
+                </tr>
+            </tbody>
         </table>
     </section>
 
@@ -147,9 +151,9 @@ th{color:#777;background:#fafaff}
 
         <label>Role</label>
         <select id="userRole">
-            <option value="ADMIN">Admin</option>
-            <option value="MANAGER">Manager</option>
-            <option value="STAFF">Staff</option>
+            <option value="Admin">Admin</option>
+            <option value="Store Manager">Store Manager</option>
+            <option value="Staff">Staff</option>
         </select>
 
         <div class="modalbuttons">
@@ -159,160 +163,7 @@ th{color:#777;background:#fafaff}
     </div>
 </div>
 
-<script>
-const USER_KEY = "freshFirstUsers";
-
-function getUsers(){
-    return JSON.parse(localStorage.getItem(USER_KEY) || "[]");
-}
-
-function saveUsers(users){
-    localStorage.setItem(USER_KEY, JSON.stringify(users));
-}
-
-function escapeHTML(value){
-    return String(value ?? "").replace(/[&<>"']/g, char => ({
-        "&":"&amp;",
-        "<":"&lt;",
-        ">":"&gt;",
-        '"':"&quot;",
-        "'":"&#39;"
-    })[char]);
-}
-
-function renderUsers(){
-    const users = getUsers();
-    const search = document.getElementById("search").value.toLowerCase();
-    const role = document.getElementById("roleFilter").value;
-
-    document.getElementById("totalUsers").textContent = users.length;
-    document.getElementById("adminCount").textContent =
-        users.filter(u => u.role === "ADMIN").length;
-    document.getElementById("staffCount").textContent =
-        users.filter(u => u.role === "STAFF").length;
-
-    const filtered = users.filter(u =>
-        (u.fullName || "").toLowerCase().includes(search) ||
-        (u.username || "").toLowerCase().includes(search)
-    ).filter(u => !role || u.role === role);
-
-    const table = document.getElementById("userTable");
-
-    if(!filtered.length){
-        table.innerHTML = `<tr><td colspan="6" class="empty">No users found</td></tr>`;
-        return;
-    }
-
-    table.innerHTML = filtered.map(user => `
-        <tr>
-            <td>${escapeHTML(user.id)}</td>
-            <td>${escapeHTML(user.fullName)}</td>
-            <td>${escapeHTML(user.username)}</td>
-            <td><span class="role">${escapeHTML(user.role)}</span></td>
-            <td>${escapeHTML(user.createdAt || "-")}</td>
-            <td class="actions">
-                <button class="edit" onclick="editUser('${escapeHTML(user.id)}')">Edit</button>
-                <button class="delete" onclick="deleteUser('${escapeHTML(user.id)}')">Delete</button>
-            </td>
-        </tr>
-    `).join("");
-}
-
-function openAdd(){
-    document.getElementById("modalTitle").textContent = "Add User";
-    document.getElementById("editId").value = "";
-    document.getElementById("fullName").value = "";
-    document.getElementById("usernameInput").value = "";
-    document.getElementById("passwordInput").value = "";
-    document.getElementById("userRole").value = "STAFF";
-    document.getElementById("passwordInput").required = true;
-    document.getElementById("userModal").style.display = "flex";
-}
-
-function closeModal(){
-    document.getElementById("userModal").style.display = "none";
-}
-
-function saveUser(){
-    const id = document.getElementById("editId").value;
-    const fullName = document.getElementById("fullName").value.trim();
-    const username = document.getElementById("usernameInput").value.trim();
-    const password = document.getElementById("passwordInput").value;
-    const role = document.getElementById("userRole").value;
-
-    if(!fullName || !username || (!id && !password)){
-        alert("Please fill all required fields.");
-        return;
-    }
-
-    const users = getUsers();
-
-    const duplicate = users.find(u =>
-        u.username.toLowerCase() === username.toLowerCase() &&
-        String(u.id) !== String(id)
-    );
-
-    if(duplicate){
-        alert("This username already exists.");
-        return;
-    }
-
-    if(id){
-        const index = users.findIndex(u => String(u.id) === String(id));
-        if(index === -1) return;
-
-        users[index].fullName = fullName;
-        users[index].username = username;
-        users[index].role = role;
-
-        if(password) users[index].password = password;
-    }else{
-        users.push({
-            id: Date.now(),
-            fullName,
-            username,
-            password,
-            role,
-            createdAt: new Date().toLocaleDateString()
-        });
-    }
-
-    saveUsers(users);
-    closeModal();
-    renderUsers();
-}
-
-function editUser(id){
-    const user = getUsers().find(u => String(u.id) === String(id));
-    if(!user) return;
-
-    document.getElementById("modalTitle").textContent = "Edit User";
-    document.getElementById("editId").value = user.id;
-    document.getElementById("fullName").value = user.fullName;
-    document.getElementById("usernameInput").value = user.username;
-    document.getElementById("passwordInput").value = "";
-    document.getElementById("passwordInput").placeholder = "Leave blank to keep current password";
-    document.getElementById("userRole").value = user.role;
-    document.getElementById("userModal").style.display = "flex";
-}
-
-function deleteUser(id){
-    if(!confirm("Are you sure you want to delete this user?")) return;
-
-    const users = getUsers().filter(u => String(u.id) !== String(id));
-    saveUsers(users);
-    renderUsers();
-}
-
-function logout(){
-    localStorage.removeItem("user");
-    localStorage.removeItem("username");
-    localStorage.removeItem("role");
-    window.location.href = "login.html";
-}
-
-renderUsers();
-</script>
+<script src="js/users.js"></script>
 
 </body>
 </html>

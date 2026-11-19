@@ -1,41 +1,76 @@
 
+// =====================================
 // FRESH FIRST - VERIFICATION PAGE
+// =====================================
 
 document.addEventListener("DOMContentLoaded", function () {
 
     const verificationForm = document.getElementById("verificationForm");
     const verificationResult = document.getElementById("verificationResult");
 
-    if (verificationForm) {
-        verificationForm.addEventListener("submit", function (event) {
-            event.preventDefault();
+    if (!verificationForm) return;
 
-            const productName = document.getElementById("productName").value.trim();
-            const quantity = document.getElementById("quantity").value;
-            const temperature = document.getElementById("temperature").value;
+    verificationForm.addEventListener("submit", async function (event) {
 
-            if (!productName || quantity === "" || temperature === "") {
-                alert("Please enter all required verification details.");
-                return;
+        event.preventDefault();
+
+        const productName =
+            document.getElementById("productName").value.trim();
+
+        const quantity =
+            document.getElementById("quantity").value;
+
+        const temperature =
+            document.getElementById("temperature").value;
+
+        if (!productName || quantity === "" || temperature === "") {
+            alert("Please enter all required verification details.");
+            return;
+        }
+
+        const verificationData = {
+            product_name: productName,
+            quantity: Number(quantity),
+            temperature: Number(temperature)
+        };
+
+        try {
+
+            const response = await fetch("/api/verifications", {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(verificationData)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || data.status !== "success") {
+                throw new Error(
+                    data.message || "Unable to save verification."
+                );
             }
 
             if (verificationResult) {
                 verificationResult.style.display = "block";
-                verificationResult.innerHTML = `
-                    <h4>Verification Details Entered</h4>
-                    <p>Product: ${escapeHTML(productName)}</p>
-                    <p>Quantity: ${escapeHTML(quantity)}</p>
-                    <p>Temperature: ${escapeHTML(temperature)}</p>
-                    <p>Database verification will be available after backend connection.</p>
-                `;
+                verificationResult.textContent =
+                    "Verification saved successfully!";
             }
-        });
-    }
 
-    function escapeHTML(value) {
-        const element = document.createElement("div");
-        element.textContent = value;
-        return element.innerHTML;
-    }
+            alert("Verification saved successfully!");
+
+            verificationForm.reset();
+
+        } catch (error) {
+
+            console.error("Verification error:", error);
+
+            alert("Unable to save verification: " + error.message);
+
+        }
+
+    });
 
 });

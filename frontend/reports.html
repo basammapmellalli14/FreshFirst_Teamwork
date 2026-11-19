@@ -48,8 +48,25 @@ th{color:#777f91;background:#fafaff}
 .dot{width:12px;height:12px;border-radius:50%}
 .green{background:#36ad75}.yellow{background:#e6aa35}.red{background:#df5555}
 .note{background:#f0effb;border-left:4px solid #7867c7;padding:15px;border-radius:7px;font-size:13px;line-height:1.7;color:#514b70}
-@media(max-width:1000px){.cards{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.layout{display:block}.sidebar{width:100%;padding:15px}.menu{display:flex;overflow-x:auto}.menu a{white-space:nowrap}.main{padding:18px}.cards{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}}
+
+@media(max-width:1000px){
+    .cards{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:600px){
+    .layout{display:block}
+    .sidebar{width:100%;padding:15px}
+    .menu{display:flex;overflow-x:auto}
+    .menu a{white-space:nowrap}
+    .main{padding:18px}
+    .cards{grid-template-columns:1fr}
+    .topbar{align-items:flex-start;flex-direction:column}
+}
+@media print{
+    .sidebar,.report-actions{display:none}
+    .main{padding:10px}
+    body{background:white}
+    .panel,.card{box-shadow:none;border:1px solid #eee}
+}
 </style>
 </head>
 
@@ -58,6 +75,7 @@ th{color:#777f91;background:#fafaff}
 
 <aside class="sidebar">
     <div class="logo">Fresh<span>First</span></div>
+
     <nav class="menu">
         <a href="dashboard.html">Dashboard</a>
         <a href="stock.html">Stock Management</a>
@@ -84,14 +102,27 @@ th{color:#777f91;background:#fafaff}
     </div>
 
     <section class="cards">
-        <div class="card"><p>Total Products</p><h2 id="totalProducts">0</h2></div>
-        <div class="card"><p>Total Quantity</p><h2 id="totalQuantity">0</h2></div>
-        <div class="card"><p>Near Expiry</p><h2 id="nearExpiry">0</h2></div>
-        <div class="card"><p>Expired Products</p><h2 id="expired">0</h2></div>
+        <div class="card">
+            <p>Total Products</p>
+            <h2 id="totalProducts">0</h2>
+        </div>
+        <div class="card">
+            <p>Total Quantity</p>
+            <h2 id="totalQuantity">0</h2>
+        </div>
+        <div class="card">
+            <p>Near Expiry</p>
+            <h2 id="nearExpiry">0</h2>
+        </div>
+        <div class="card">
+            <p>Expired Products</p>
+            <h2 id="expired">0</h2>
+        </div>
     </section>
 
     <section class="panel">
         <h2>Stock Health Overview</h2>
+
         <div class="chart-area">
             <div class="donut" id="donut">
                 <div class="donut-inner">
@@ -99,16 +130,27 @@ th{color:#777f91;background:#fafaff}
                     <span>Products</span>
                 </div>
             </div>
+
             <div class="legend">
-                <div class="legend-item"><span class="dot green"></span> Safe: <strong id="safeCount">0</strong></div>
-                <div class="legend-item"><span class="dot yellow"></span> Warning: <strong id="warningCount">0</strong></div>
-                <div class="legend-item"><span class="dot red"></span> Unsafe: <strong id="unsafeCount">0</strong></div>
+                <div class="legend-item">
+                    <span class="dot green"></span>
+                    Safe: <strong id="safeCount">0</strong>
+                </div>
+                <div class="legend-item">
+                    <span class="dot yellow"></span>
+                    Warning: <strong id="warningCount">0</strong>
+                </div>
+                <div class="legend-item">
+                    <span class="dot red"></span>
+                    Unsafe: <strong id="unsafeCount">0</strong>
+                </div>
             </div>
         </div>
     </section>
 
     <section class="panel">
         <h2>Product Stock Report</h2>
+
         <div class="table-wrap">
             <table>
                 <thead>
@@ -121,214 +163,89 @@ th{color:#777f91;background:#fafaff}
                         <th>Status</th>
                     </tr>
                 </thead>
-                <tbody id="stockReport"></tbody>
+                <tbody id="stockReport">
+                    <tr>
+                        <td colspan="6">Loading products...</td>
+                    </tr>
+                </tbody>
             </table>
         </div>
     </section>
 
     <section class="panel">
         <h2>Verification Summary</h2>
+
         <div class="cards" style="margin:0">
-            <div class="card"><p>Total Verifications</p><h2 id="totalVerifications">0</h2></div>
-            <div class="card"><p>Safe Verifications</p><h2 id="safeVerifications">0</h2></div>
-            <div class="card"><p>Warnings</p><h2 id="warningVerifications">0</h2></div>
-            <div class="card"><p>Unsafe Verifications</p><h2 id="unsafeVerifications">0</h2></div>
+            <div class="card">
+                <p>Total Verifications</p>
+                <h2 id="totalVerifications">0</h2>
+            </div>
+            <div class="card">
+                <p>Safe Verifications</p>
+                <h2 id="safeVerifications">0</h2>
+            </div>
+            <div class="card">
+                <p>Warnings</p>
+                <h2 id="warningVerifications">0</h2>
+            </div>
+            <div class="card">
+                <p>Unsafe Verifications</p>
+                <h2 id="unsafeVerifications">0</h2>
+            </div>
         </div>
     </section>
 
     <section class="panel">
         <h2>Action Summary</h2>
+
         <div class="cards" style="margin:0">
-            <div class="card"><p>Total Actions</p><h2 id="totalActions">0</h2></div>
-            <div class="card"><p>Pending</p><h2 id="pendingActions">0</h2></div>
-            <div class="card"><p>In Progress</p><h2 id="progressActions">0</h2></div>
-            <div class="card"><p>Completed</p><h2 id="completedActions">0</h2></div>
+            <div class="card">
+                <p>Total Actions</p>
+                <h2 id="totalActions">0</h2>
+            </div>
+            <div class="card">
+                <p>Pending</p>
+                <h2 id="pendingActions">0</h2>
+            </div>
+            <div class="card">
+                <p>In Progress</p>
+                <h2 id="progressActions">0</h2>
+            </div>
+            <div class="card">
+                <p>Completed</p>
+                <h2 id="completedActions">0</h2>
+            </div>
         </div>
     </section>
 
     <section class="panel">
         <h2>Export Reports</h2>
+
         <p style="font-size:13px;color:#81879a;margin-bottom:17px">
             Download your current product stock report as a CSV file.
         </p>
+
         <div class="report-actions">
-            <button class="primary" onclick="exportStock()">Download Stock Report</button>
-            <button class="secondary" onclick="window.print()">Print Report</button>
+            <button class="primary" onclick="exportStock()">
+                Download Stock Report
+            </button>
+            <button class="secondary" onclick="window.print()">
+                Print Report
+            </button>
         </div>
     </section>
 
     <section class="panel">
         <h2>Report Information</h2>
-        <div class="note">
-            Reports are calculated using product, verification and action information saved in browser storage.
-            They are frontend demonstration reports and are not retrieved from the MySQL database.
+        <div class="note" id="reportInfo">
+            Reports are loaded from the FreshFirst backend.
         </div>
     </section>
 
 </main>
 </div>
 
-<script>
-const PRODUCT_KEY = "freshFirstProducts";
-const VERIFICATION_KEY = "freshFirstVerifications";
-const ACTION_KEY = "freshFirstActions";
+<script src="js/reports.js"></script>
 
-const defaultProducts = [
-    {id:1,name:"Fresh Milk",category:"Dairy",quantity:20,unit:"litres",expiry:"2026-11-20",temp:5},
-    {id:2,name:"Apple",category:"Fruits",quantity:30,unit:"kg",expiry:"2026-11-22",temp:6},
-    {id:3,name:"Banana",category:"Fruits",quantity:25,unit:"kg",expiry:"2026-11-17",temp:8},
-    {id:4,name:"Carrot",category:"Vegetables",quantity:15,unit:"kg",expiry:"2026-11-25",temp:5},
-    {id:5,name:"Bread",category:"Bakery",quantity:20,unit:"packets",expiry:"2026-11-18",temp:22}
-];
-
-function readData(key){
-    try{
-        const data=JSON.parse(localStorage.getItem(key)||"[]");
-        return Array.isArray(data)?data:[];
-    }catch(e){
-        return [];
-    }
-}
-
-let products=JSON.parse(localStorage.getItem(PRODUCT_KEY)||"null");
-if(!Array.isArray(products)){
-    products=defaultProducts;
-    localStorage.setItem(PRODUCT_KEY,JSON.stringify(products));
-}
-
-const verifications=readData(VERIFICATION_KEY);
-const actions=readData(ACTION_KEY);
-
-const defaultRules={
-    Bakery:{min:15,max:25,days:2},
-    Dairy:{min:2,max:8,days:3},
-    Fruits:{min:4,max:12,days:3},
-    Vegetables:{min:4,max:12,days:3}
-};
-
-function getRules(category){
-    const saved=readData("freshFirstCategories");
-    const custom=saved.find(c=>c.name.toLowerCase()===String(category).toLowerCase());
-    return custom
-        ?{min:Number(custom.min),max:Number(custom.max),days:Number(custom.days)}
-        :defaultRules[category]||{min:0,max:100,days:3};
-}
-
-function daysLeft(date){
-    const today=new Date();
-    today.setHours(0,0,0,0);
-    return Math.ceil((new Date(date+"T00:00:00")-today)/86400000);
-}
-
-function getStatus(product){
-    const days=daysLeft(product.expiry);
-    const rule=getRules(product.category);
-    const temp=Number(product.temp);
-
-    if(days<0)return "UNSAFE";
-    if(temp<rule.min||temp>rule.max)return "WARNING";
-    if(days<=rule.days)return "WARNING";
-    return "SAFE";
-}
-
-function escapeHTML(value){
-    return String(value??"").replace(/[&<>"']/g,char=>({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    })[char]);
-}
-
-function renderReports(){
-    const summary={SAFE:0,WARNING:0,UNSAFE:0};
-    let totalQuantity=0;
-    let near=0;
-    let expired=0;
-
-    products.forEach(p=>{
-        const status=getStatus(p);
-        summary[status]++;
-        totalQuantity+=Number(p.quantity)||0;
-        const days=daysLeft(p.expiry);
-        if(days<0)expired++;
-        else if(days<=getRules(p.category).days)near++;
-    });
-
-    document.getElementById("totalProducts").textContent=products.length;
-    document.getElementById("totalQuantity").textContent=totalQuantity;
-    document.getElementById("nearExpiry").textContent=near;
-    document.getElementById("expired").textContent=expired;
-
-    document.getElementById("safeCount").textContent=summary.SAFE;
-    document.getElementById("warningCount").textContent=summary.WARNING;
-    document.getElementById("unsafeCount").textContent=summary.UNSAFE;
-    document.getElementById("healthTotal").textContent=products.length;
-
-    const total=products.length||1;
-    const green=summary.SAFE/total*100;
-    const yellow=summary.WARNING/total*100;
-    const red=summary.UNSAFE/total*100;
-    document.getElementById("donut").style.background=
-        `conic-gradient(#36ad75 0% ${green}%,#e6aa35 ${green}% ${green+yellow}%,#df5555 ${green+yellow}% 100%)`;
-
-    document.getElementById("stockReport").innerHTML=products.length
-        ?products.map(p=>{
-            const status=getStatus(p);
-            return `<tr>
-                <td><strong>${escapeHTML(p.name)}</strong></td>
-                <td>${escapeHTML(p.category)}</td>
-                <td>${escapeHTML(p.quantity)} ${escapeHTML(p.unit)}</td>
-                <td>${escapeHTML(p.expiry)}</td>
-                <td>${escapeHTML(p.temp)}°C</td>
-                <td><span class="status ${status.toLowerCase()}">${status}</span></td>
-            </tr>`;
-        }).join("")
-        :'<tr><td colspan="6">No products available.</td></tr>';
-
-    document.getElementById("totalVerifications").textContent=verifications.length;
-    document.getElementById("safeVerifications").textContent=verifications.filter(v=>v.status==="SAFE").length;
-    document.getElementById("warningVerifications").textContent=verifications.filter(v=>v.status==="WARNING").length;
-    document.getElementById("unsafeVerifications").textContent=verifications.filter(v=>v.status==="UNSAFE").length;
-
-    document.getElementById("totalActions").textContent=actions.length;
-    document.getElementById("pendingActions").textContent=actions.filter(a=>a.status==="PENDING").length;
-    document.getElementById("progressActions").textContent=actions.filter(a=>a.status==="IN_PROGRESS").length;
-    document.getElementById("completedActions").textContent=actions.filter(a=>a.status==="DONE").length;
-}
-
-function exportStock(){
-    if(!products.length){
-        alert("No products available to export.");
-        return;
-    }
-
-    const headers=["Product","Category","Quantity","Unit","Expiry Date","Storage Temperature","Status"];
-    const rows=products.map(p=>[
-        p.name,p.category,p.quantity,p.unit,p.expiry,p.temp+"°C",getStatus(p)
-    ]);
-
-    const csv=[headers,...rows].map(row=>
-        row.map(value=>'"'+String(value??"").replace(/"/g,'""')+'"').join(",")
-    ).join("\n");
-
-    const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
-    const url=URL.createObjectURL(blob);
-    const link=document.createElement("a");
-    link.href=url;
-    link.download="FreshFirst_Stock_Report.csv";
-    link.click();
-    URL.revokeObjectURL(url);
-}
-
-function logout(){
-    localStorage.removeItem("user");
-    localStorage.removeItem("username");
-    localStorage.removeItem("role");
-}
-
-const user=JSON.parse(localStorage.getItem("user")||"{}");
-const username=user.full_name||user.username||localStorage.getItem("username");
-if(username)document.getElementById("profileName").textContent="Welcome, "+username;
-
-renderReports();
-</script>
 </body>
 </html>
