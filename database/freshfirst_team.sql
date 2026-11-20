@@ -1,11 +1,8 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
+-- FreshFirst Team Database Export
 --
 -- Host: 127.0.0.1:3306
 -- Generation Time: Nov 15, 2026 at 05:27 AM
 -- Server version: 9.1.0
--- PHP Version: 8.3.14
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -46,6 +43,49 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `verify_product` (IN `p_product_id` 
     FROM products p
     JOIN categories c ON p.category_id = c.category_id
     WHERE p.product_id = p_product_id;
+END$$
+
+DROP PROCEDURE IF EXISTS `verify_product_temperature`$$
+CREATE PROCEDURE `verify_product_temperature`(
+    IN p_product_id INT,
+    IN p_verified_by INT,
+    IN p_actual_temperature DECIMAL(5,2),
+    IN p_remarks VARCHAR(255)
+)
+BEGIN
+    DECLARE v_min_temp DECIMAL(5,2);
+    DECLARE v_max_temp DECIMAL(5,2);
+    DECLARE v_category_found INT DEFAULT 0;
+    DECLARE v_status VARCHAR(20);
+
+    SELECT COUNT(*), MAX(c.min_storage_temp), MAX(c.max_storage_temp)
+    INTO v_category_found, v_min_temp, v_max_temp
+    FROM products p
+    JOIN categories c ON p.category_id = c.category_id
+    WHERE p.product_id = p_product_id;
+
+    IF v_category_found = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Product not found';
+    ELSE
+        IF p_actual_temperature BETWEEN v_min_temp AND v_max_temp THEN
+            SET v_status = 'SAFE';
+        ELSE
+            SET v_status = 'UNSAFE';
+        END IF;
+
+        INSERT INTO verifications (
+            product_id, verified_by, actual_temperature,
+            verification_status, remarks
+        )
+        VALUES (
+            p_product_id, p_verified_by, p_actual_temperature,
+            v_status, p_remarks
+        );
+
+        SELECT LAST_INSERT_ID() AS verification_id,
+               v_status AS verification_status;
+    END IF;
 END$$
 
 DELIMITER ;
