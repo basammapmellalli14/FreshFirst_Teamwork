@@ -150,7 +150,9 @@ input:focus {
 
     <h2>Welcome Back!</h2>
 
-    <div class="error" id="errorMessage" role="alert" aria-live="polite"></div>
+    <div class="error" id="errorMessage">
+        Invalid username or password. Please try again.
+    </div>
 
     <form id="loginForm">
 
@@ -184,10 +186,9 @@ input:focus {
 
     <div class="demo-box">
         <h3>Demo Login Details</h3>
-        <p><b>Admin username:</b> admin</p>
-        <p><b>Manager username:</b> manager1</p>
-        <p><b>Staff username:</b> staff1</p>
-        <p>Passwords must match the accounts configured in the MySQL users table.</p>
+        <p><b>Admin:</b> admin / admin123</p>
+        <p><b>Manager:</b> manager / manager123</p>
+        <p><b>Staff:</b> staff / staff123</p>
     </div>
 
     <div class="footer">
@@ -196,8 +197,154 @@ input:focus {
 
 </div>
 
-<script src="js/login.js" defer></script>
+<script>
 
+// CREATE DEMO USERS IF THEY DO NOT EXIST
+function createDemoUsers() {
+
+    let users = [];
+
+    try {
+        users = JSON.parse(
+            localStorage.getItem("freshFirstUsers") || "[]"
+        );
+
+        if (!Array.isArray(users)) {
+            users = [];
+        }
+    } catch (error) {
+        users = [];
+    }
+
+    const demoUsers = [
+        {
+            id: 1,
+            fullName: "Admin",
+            username: "admin",
+            password: "admin123",
+            role: "Admin"
+        },
+        {
+            id: 2,
+            fullName: "Manager",
+            username: "manager",
+            password: "manager123",
+            role: "Store Manager"
+        },
+        {
+            id: 3,
+            fullName: "Staff",
+            username: "staff",
+            password: "staff123",
+            role: "Staff"
+        }
+    ];
+
+    demoUsers.forEach(demoUser => {
+
+        const exists = users.some(user =>
+            String(user.username || "").toLowerCase() ===
+            demoUser.username.toLowerCase()
+        );
+
+        if (!exists) {
+            users.push(demoUser);
+        }
+
+    });
+
+    localStorage.setItem(
+        "freshFirstUsers",
+        JSON.stringify(users)
+    );
+}
+
+// LOGIN
+document.getElementById("loginForm").addEventListener(
+    "submit",
+    function(event) {
+
+        event.preventDefault();
+
+        createDemoUsers();
+
+        const username = document
+            .getElementById("username")
+            .value.trim();
+
+        const password = document
+            .getElementById("password")
+            .value;
+
+        const users = JSON.parse(
+            localStorage.getItem("freshFirstUsers") || "[]"
+        );
+
+        const loggedInUser = users.find(user =>
+
+            String(user.username || "").toLowerCase() ===
+            username.toLowerCase() &&
+
+            (
+                user.password === password ||
+                user.passwordHash === password
+            )
+
+        );
+
+        if (!loggedInUser) {
+
+            document.getElementById("errorMessage").style.display =
+                "block";
+
+            return;
+        }
+
+        const userData = {
+            id: loggedInUser.id,
+            fullName: loggedInUser.fullName ||
+                      loggedInUser.full_name ||
+                      loggedInUser.username,
+            username: loggedInUser.username,
+            role: loggedInUser.role
+        };
+
+        localStorage.setItem(
+            "user",
+            JSON.stringify(userData)
+        );
+
+        localStorage.setItem(
+            "username",
+            userData.username
+        );
+
+        localStorage.setItem(
+            "role",
+            userData.role
+        );
+
+        window.location.href = "dashboard.html";
+
+    }
+);
+
+// HIDE ERROR WHEN TYPING
+document.getElementById("username").addEventListener(
+    "input",
+    hideError
+);
+
+document.getElementById("password").addEventListener(
+    "input",
+    hideError
+);
+
+function hideError() {
+    document.getElementById("errorMessage").style.display = "none";
+}
+
+</script>
 
 </body>
 </html>

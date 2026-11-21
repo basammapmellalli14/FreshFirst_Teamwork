@@ -1,4 +1,5 @@
-﻿# Fresh First – Perishable Stock Verification Register
+
+# Fresh First – Perishable Stock Verification Register
 
 ## Project Overview
 A web-based system for managing perishable stock, verifying expiry dates and storage temperatures, assigning priorities, and maintaining activity history.
@@ -9,12 +10,21 @@ A web-based system for managing perishable stock, verifying expiry dates and sto
 - Backend: Shrushti
 - Testing: Khushi
 
-## Current Development Stage
-Database development completed. Frontend development is next.
+## Technology Stack
+- Frontend: HTML, CSS, JavaScript
+- Backend: Python, Flask
+- Database: MySQL / MariaDB
+
+## Project Structure
+- `backend/` – Backend application and database connection
+- `database/` – Database scripts and migrations
+- `frontend/` – User interface files
+- `diagrams/` – Project workflow diagrams
+- `documentation/` – Project and testing documents
 
 ## Database
-Database name: freshfirst_team
-Database: MySQL
+- Database name: `freshfirst_team`
+- Database: MySQL / MariaDB
 
 ## Database Tables
 1. users
@@ -23,21 +33,26 @@ Database: MySQL
 4. verifications
 5. actions
 6. history
+7. app_settings
 
-## Frontend Instructions
-- Develop the user interface using HTML, CSS and JavaScript.
-- Follow the project requirements and synopsis.
-- Create pages for Login, Dashboard, Stock, Verification, Priority, Actions, History and Reports.
-- Use sample data initially.
-- Do not modify the database schema.
-- Hand over the completed frontend folder to the Backend developer.
+## Backend
+The backend is developed using Flask and provides APIs for login, products, categories, verification, priority, actions, history, users, reports and settings.
+
+## Testing
+Backend API testing includes:
+- API endpoint testing
+- Product and category operations
+- Verification and action operations
+- Role-based access testing
+- Reports and settings testing
 
 ## Important Files
-- database/freshfirst_team.sql
-- documentation/DATABASE_DOCUMENTATION.md
+- `database/freshfirst_team.sql`
+- `documentation/DATABASE_DOCUMENTATION.md`
+- `documentation/DATABASE_TESTING_REPORT.md`
 
 ## Security Note
-The sample password hashes are temporary placeholders. Secure password hashing must be implemented by the Backend developer.
+Configure the `FRESHFIRST_SECRET_KEY` environment variable before running the backend. Database connection settings can be configured using environment variables.
 
 ## Team Workflow
 Database → Frontend → Backend → Testing

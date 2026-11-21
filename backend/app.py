@@ -13,11 +13,10 @@ app = Flask(__name__)
 # APPLICATION CONFIGURATION
 # --------------------------------------------------
 
-app.secret_key = os.environ.get(
-    "FRESHFIRST_SECRET_KEY",
-    "freshfirst_development_secret_key"
-)
+app.secret_key = os.environ.get("FRESHFIRST_SECRET_KEY")
 
+if not app.secret_key:
+    raise RuntimeError("FRESHFIRST_SECRET_KEY environment variable is not set.")
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax"
@@ -1083,9 +1082,28 @@ def manage_verifications():
     data = request.get_json(silent=True) or {}
 
     product_id = data.get("product_id") or data.get("productId")
-    product_name = data.get("productName")
-    actual_temperature = data.get("actualTemperature")
+    product_name = data.get("product_name") or data.get("productName")
+    actual_temperature = (
+        data.get("actualTemperature")
+        if data.get("actualTemperature") is not None
+        else data.get("temperature", data.get("actual_temperature"))
+    )
+    quantity_value = data.get("quantity")
     remarks = str(data.get("remarks", "")).strip()[:255]
+
+    verified_quantity = None
+    if quantity_value not in (None, ""):
+        try:
+            if isinstance(quantity_value, bool):
+                raise ValueError
+            verified_quantity = float(quantity_value)
+            if not math.isfinite(verified_quantity) or verified_quantity <= 0:
+                raise ValueError
+        except (ValueError, TypeError):
+            return jsonify({
+                "status": "error",
+                "message": "Enter a valid quantity greater than zero."
+            }), 400
 
     if actual_temperature is None:
         return jsonify({
@@ -1120,6 +1138,7 @@ def manage_verifications():
                 SELECT
                     p.product_id,
                     p.product_name,
+                    p.quantity,
                     p.expiry_date,
                     c.min_storage_temp,
                     c.max_storage_temp,
@@ -1134,6 +1153,7 @@ def manage_verifications():
                 SELECT
                     p.product_id,
                     p.product_name,
+                    p.quantity,
                     p.expiry_date,
                     c.min_storage_temp,
                     c.max_storage_temp,
@@ -1170,14 +1190,29 @@ def manage_verifications():
         max_temp = float(product["max_storage_temp"])
         near_expiry_days = int(product["near_expiry_days"])
 
+        quantity_mismatch = (
+            verified_quantity is not None
+            and verified_quantity != float(product["quantity"])
+        )
+
         if days_left < 0:
             verification_status = "UNSAFE"
-        elif actual_temperature < min_temp or actual_temperature > max_temp:
-            verification_status = "WARNING"
-        elif days_left <= near_expiry_days:
+        elif (
+            actual_temperature < min_temp
+            or actual_temperature > max_temp
+            or days_left <= near_expiry_days
+            or quantity_mismatch
+        ):
             verification_status = "WARNING"
         else:
             verification_status = "SAFE"
+
+        if quantity_mismatch:
+            quantity_note = (
+                f"Quantity mismatch: entered {verified_quantity:g}, "
+                f"recorded stock {float(product['quantity']):g}."
+            )
+            remarks = (remarks + " " + quantity_note).strip()[:255]
 
         cursor.execute("""
             INSERT INTO verifications
@@ -1201,9 +1236,8 @@ def manage_verifications():
 
         add_history(
             cursor,
-            session["user_id"],
+            product["product_id"],
             "PRODUCT VERIFIED",
-            product["product_name"],
             "Verification result: " + verification_status
         )
 
@@ -1376,19 +1410,28 @@ def add_action():
         data = request.get_json(silent=True) or {}
 
         product_id = data.get("productId", data.get("product_id"))
-        action_type = data.get("actionType", data.get("action_type"))
-        description = data.get("description", "")
+        product_name = data.get("product_name", data.get("productName"))
+        action_type = (
+            data.get("actionType")
+            or data.get("action_type")
+            or data.get("suggested_action")
+            or data.get("suggestedAction")
+        )
+        description = data.get("description", data.get("remarks", ""))
         priority = data.get("priority", "MEDIUM")
         assigned_to = data.get("assignedTo", data.get("assigned_to"))
 
-        if not product_id or not action_type:
+        if (not product_id and not product_name) or not action_type:
             return jsonify({
                 "status": "error",
-                "message": "Product ID and action type are required."
+                "message": "Product and suggested action are required."
             }), 400
 
         try:
-            product_id = int(product_id)
+            if product_id not in (None, ""):
+                product_id = int(product_id)
+            else:
+                product_id = None
             if assigned_to not in (None, ""):
                 assigned_to = int(assigned_to)
             else:
@@ -1414,17 +1457,29 @@ def add_action():
         connection = get_db_connection()
         cursor = connection.cursor(dictionary=True)
 
-        cursor.execute("""
-            SELECT product_id
-            FROM products
-            WHERE product_id = %s AND is_active = 1
-        """, (product_id,))
+        if product_id is not None:
+            cursor.execute("""
+                SELECT product_id
+                FROM products
+                WHERE product_id = %s AND is_active = 1
+            """, (product_id,))
+        else:
+            cursor.execute("""
+                SELECT product_id
+                FROM products
+                WHERE product_name = %s AND is_active = 1
+                ORDER BY product_id DESC
+                LIMIT 1
+            """, (str(product_name).strip(),))
 
-        if not cursor.fetchone():
+        selected_product = cursor.fetchone()
+        if not selected_product:
             return jsonify({
                 "status": "error",
                 "message": "Active product not found."
             }), 404
+
+        product_id = selected_product["product_id"]
 
         if assigned_to is not None:
             cursor.execute("""
@@ -1438,6 +1493,12 @@ def add_action():
                     "status": "error",
                     "message": "Assigned user not found."
                 }), 404
+
+        # Set the actor for optional action-audit database triggers.
+        cursor.execute(
+            "SET @freshfirst_actor_user_id = %s",
+            (session["user_id"],)
+        )
 
         cursor.execute("""
             INSERT INTO actions
@@ -1517,6 +1578,12 @@ def update_action(action_id):
 
         connection = get_db_connection()
         cursor = connection.cursor()
+
+        # Set the actor for optional action-audit database triggers.
+        cursor.execute(
+            "SET @freshfirst_actor_user_id = %s",
+            (session["user_id"],)
+        )
 
         cursor.execute("""
             UPDATE actions
