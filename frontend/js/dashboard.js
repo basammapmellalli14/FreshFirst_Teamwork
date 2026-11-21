@@ -96,7 +96,7 @@ async function logout() {
     try {
         await fetch("/api/logout", {
             method: "POST",
-            credentials: "same-origin"
+            credentials: "include"
         });
     } catch (error) {
         console.error("Logout error:", error);
@@ -151,7 +151,7 @@ async function loadProducts() {
     try {
         const response = await fetch("/api/products", {
             method: "GET",
-            credentials: "same-origin",
+            credentials: "include",
             headers: {
                 "Accept": "application/json"
             }
@@ -409,11 +409,35 @@ function displayCurrentDate() {
 /* START DASHBOARD */
 
 document.addEventListener("DOMContentLoaded", async function() {
+    // Verify the Flask session; localStorage is display data, not authentication.
+    try {
+        const response = await fetch("/api/me", {
+            method: "GET",
+            credentials: "include",
+            headers: { "Accept": "application/json" }
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data.status !== "success" || !data.user) {
+            localStorage.removeItem("user");
+            localStorage.removeItem("username");
+            localStorage.removeItem("role");
+            window.location.replace("login.html");
+            return;
+        }
+
+        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("username", data.user.username || "");
+        localStorage.setItem("role", data.user.role || "");
+    } catch (error) {
+        console.error("Session verification failed:", error);
+        window.location.replace("login.html");
+        return;
+    }
+
     loadUser();
     displayCurrentDate();
-
     showSlide(0);
     startSlider();
-
     await loadProducts();
 });
